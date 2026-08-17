@@ -1,0 +1,19 @@
+# Node & Build artifacts
+node_modules/
+.next/
+out/
+build/
+dist/
+*.log
+
+# Environment variables
+.env*.local
+.env
+
+# Cache
+.turbo
+.cache
+
+# OS files
+.DS_Store
+Thumbs.db

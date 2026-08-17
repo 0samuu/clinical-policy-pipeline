@@ -1,0 +1,213 @@
+version: '3.9'
+
+networks:
+  public-ingress:
+    name: public-ingress
+    driver: bridge
+  clinical-internal-mesh:
+    name: clinical-internal-mesh
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  presidio_model_cache:
+    driver: local
+  keycloak_data:
+    driver: local
+
+services:
+  # 1. Edge Ingress Proxy
+  traefik:
+    image: traefik:v3.0
+    container_name: clinical-traefik-proxy
+    restart: unless-stopped
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - public-ingress
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  # 2. Next.js App Router BFF
+  nextjs-bff:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clinical-nextjs-bff
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-clinical-prod-secret-9941a82c}
+      - NEXTAUTH_URL=https://policies.clinical.hospital.org
+      - INTERNAL_PHP_GATEWAY_URL=http://php-gateway:8000
+      - INTERNAL_WS_GATEWAY_URL=http://node-presence-ws:3001
+      - INTERNAL_REDIS_URL=redis://redis-cluster:6379/0
+      - KEYCLOAK_INTERNAL_ISSUER=http://keycloak-iam:8080/realms/clinical-realm
+      - APP_MASTER_KEK=${APP_MASTER_KEK:-0123456789abcdef0123456789abcdef}
+    networks:
+      - public-ingress
+      - clinical-internal-mesh
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextjs.rule=Host(`policies.clinical.hospital.org`)"
+      - "traefik.http.routers.nextjs.entrypoints=websecure"
+      - "traefik.http.routers.nextjs.tls=true"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Powered-By="
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Server="
+      - "traefik.http.routers.nextjs.middlewares=security-headers"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+
+  # 3. PHP 8.3 PSR-15 API Gateway
+  php-gateway:
+    image: php:8.3-cli-alpine
+    container_name: clinical-php-gateway
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./backend-php:/app
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    environment:
+      - APP_ENV=production
+      - DB_HOST=postgres-db
+      - REDIS_HOST=redis-cluster
+    networks:
+      - clinical-internal-mesh
+    expose:
+      - "8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1024M
+
+  # 4. Node.js WebSocket Presence Engine
+  node-presence-ws:
+    image: node:20-alpine
+    container_name: clinical-ws-presence
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./ws-service:/app
+    command: ["node", "server.js"]
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_HOST=redis-cluster
+    networks:
+      - public-ingress
+      - clinical-internal-mesh
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ws.rule=Host(`policies.clinical.hospital.org`) && PathPrefix(`/ws`)"
+      - "traefik.http.routers.ws.entrypoints=websecure"
+      - "traefik.http.routers.ws.tls=true"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  # 5. Python 3.12 Ingestion Worker
+  python-doc-worker:
+    image: python:3.12-slim
+    container_name: clinical-python-worker
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./backend-python:/app
+      - presidio_model_cache:/root/.cache
+    command: ["python3", "worker.py"]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis-cluster:6379/1
+      - APP_MASTER_KEK=${APP_MASTER_KEK:-0123456789abcdef0123456789abcdef}
+    networks:
+      - clinical-internal-mesh
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4096M
+
+  # 6. PostgreSQL 16 + pgvector
+  postgres-db:
+    image: pgvector/pgvector:pg16
+    container_name: clinical-postgres-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=clinical_db
+      - POSTGRES_USER=clinical_admin
+      - POSTGRES_PASSWORD=clinical_secure_pass_998
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - clinical-internal-mesh
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3072M
+
+  # 7. Redis 7 Alpine
+  redis-cluster:
+    image: redis:7.2-alpine
+    container_name: clinical-redis-mesh
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - clinical-internal-mesh
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+
+  # 8. Keycloak IAM
+  keycloak-iam:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: clinical-keycloak-iam
+    restart: unless-stopped
+    command: ["start-dev", "--http-enabled=true"]
+    environment:
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres-db:5432/clinical_db
+      - KC_DB_USERNAME=clinical_admin
+      - KC_DB_PASSWORD=clinical_secure_pass_998
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin_secure_mfa_pass
+    networks:
+      - public-ingress
+      - clinical-internal-mesh
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M

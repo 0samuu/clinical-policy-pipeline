@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Helena Taylor Light Clinical Palette (Derived from /home/nagumo/Pictures/Screenshots/helena-taylor-new.png) */
+    --brand-primary: #0E7490;
+    --brand-primary-hover: #155E75;
+    --brand-accent: #D97706;
+    --brand-accent-glow: rgba(217, 119, 6, 0.18);
+    --surface-bg: #F8FAFC;
+    --surface-card: #FFFFFF;
+    --surface-elevated: #F1F5F9;
+    --text-primary: #0F172A;
+    --text-muted: #64748B;
+    --border-subtle: #E2E8F0;
+  }
+
+  .dark {
+    /* Helena Taylor Dark Clinical Palette (Derived from /home/nagumo/Pictures/Screenshots/helena-taylor-new.png) */
+    --brand-primary: #60B4BF;
+    --brand-primary-hover: #7CD3DF;
+    --brand-accent: #F09020;
+    --brand-accent-glow: rgba(240, 144, 32, 0.32);
+    --surface-bg: #090D16;
+    --surface-card: #111827;
+    --surface-elevated: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-muted: #94A3B8;
+    --border-subtle: #334155;
+  }
+}
+
+body {
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar for Medical Reader */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
+}
