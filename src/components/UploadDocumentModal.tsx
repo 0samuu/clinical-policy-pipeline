@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { 
   FileUp, Upload, CheckCircle2, ShieldCheck, 
-  X, FileText, Sparkles, AlertCircle, RefreshCw 
+  X, Sparkles, AlertCircle, RefreshCw 
 } from 'lucide-react';
 import { uploadMedicalPolicyAction } from '@/app/actions/reader';
 import { PolicyDocument } from '@/lib/types';
@@ -130,20 +130,20 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-      <div className="w-full max-w-2xl bg-surface-card rounded-3xl border border-border-subtle shadow-2xl p-6 sm:p-8 space-y-6 transition-colors duration-200 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+      <div className="w-full max-w-2xl bg-surface-card rounded-3xl border border-border-subtle shadow-2xl p-4 sm:p-8 space-y-4 sm:space-y-6 transition-colors duration-200 max-h-[92vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border-subtle pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-brand-primary/10 text-brand-primary border border-brand-primary/30">
-              <FileUp className="w-6 h-6" />
+        <div className="flex items-center justify-between border-b border-border-subtle pb-3 sm:pb-4">
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
+            <div className="p-2 sm:p-2.5 rounded-2xl bg-brand-primary/10 text-brand-primary border border-brand-primary/30 flex-shrink-0">
+              <FileUp className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-text-primary tracking-tight">
-                Upload Medical Policy Document
+              <h2 className="text-base sm:text-lg font-bold text-text-primary tracking-tight">
+                Upload Policy Document
               </h2>
-              <p className="text-xs text-text-muted">
-                Authenticated User: <span className="text-brand-primary font-semibold">{currentUser.name}</span> ({currentUser.role})
+              <p className="text-[11px] sm:text-xs text-text-muted truncate max-w-[200px] sm:max-w-none">
+                Author: <span className="text-brand-primary font-semibold">{currentUser.name}</span>
               </p>
             </div>
           </div>
@@ -151,30 +151,30 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
           <button
             onClick={onClose}
             id="btn-close-upload-modal"
-            className="p-2 rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 text-text-muted hover:text-text-primary transition-all"
+            className="p-1.5 sm:p-2 rounded-lg bg-surface-elevated hover:bg-surface-elevated/80 text-text-muted hover:text-text-primary transition-all"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Quick Clinical Template Selector */}
-        <div className="bg-surface-elevated p-3 rounded-2xl border border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="text-xs font-mono font-semibold text-text-muted flex items-center space-x-1.5">
+        <div className="bg-surface-elevated p-2.5 sm:p-3 rounded-2xl border border-border-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-[11px] sm:text-xs font-mono font-semibold text-text-muted flex items-center space-x-1.5">
             <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
-            <span>Load Quick Clinical Template:</span>
+            <span>Load Template:</span>
           </span>
           <div className="flex space-x-2">
             <button
               type="button"
               onClick={() => handleApplyTemplate('ob_gyn')}
-              className="px-2.5 py-1 rounded-lg bg-surface-card hover:bg-surface-card/80 text-[11px] font-semibold text-text-primary border border-border-subtle transition-all"
+              className="flex-1 sm:flex-none px-2.5 py-1 rounded-lg bg-surface-card hover:bg-surface-card/80 text-[11px] font-semibold text-text-primary border border-border-subtle transition-all text-center"
             >
               OB/GYN Protocol
             </button>
             <button
               type="button"
               onClick={() => handleApplyTemplate('general_safety')}
-              className="px-2.5 py-1 rounded-lg bg-surface-card hover:bg-surface-card/80 text-[11px] font-semibold text-text-primary border border-border-subtle transition-all"
+              className="flex-1 sm:flex-none px-2.5 py-1 rounded-lg bg-surface-card hover:bg-surface-card/80 text-[11px] font-semibold text-text-primary border border-border-subtle transition-all text-center"
             >
               Surgical Time-Out
             </button>
@@ -188,12 +188,9 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
           {/* File Drag-and-Drop Area */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-text-muted mb-2">
-              Select or Drop Policy File (.txt, .md, .pdf, .docx)
-            </label>
             <input
               type="file"
               ref={fileInputRef}
@@ -204,22 +201,22 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-border-subtle hover:border-brand-primary rounded-2xl p-6 text-center cursor-pointer bg-surface-elevated/40 hover:bg-surface-elevated transition-all group"
+              className="border-2 border-dashed border-border-subtle hover:border-brand-primary rounded-2xl p-4 sm:p-6 text-center cursor-pointer bg-surface-elevated/40 hover:bg-surface-elevated transition-all group"
             >
-              <Upload className="w-8 h-8 mx-auto text-text-muted group-hover:text-brand-primary transition-colors" />
-              <div className="mt-2 text-xs font-semibold text-text-primary">
-                {fileName ? `Selected File: ${fileName}` : 'Click to Browse or Drag Document Here'}
+              <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto text-text-muted group-hover:text-brand-primary transition-colors" />
+              <div className="mt-1.5 text-xs font-semibold text-text-primary truncate">
+                {fileName ? `Selected: ${fileName}` : 'Tap to Browse or Drop Document File'}
               </div>
-              <p className="text-[11px] text-text-muted mt-0.5">
-                Automatically extracts text sections, headers, and codes
+              <p className="text-[10px] sm:text-[11px] text-text-muted mt-0.5">
+                Supports .pdf, .docx, .txt, .md with auto-sectioning
               </p>
             </div>
           </div>
 
           {/* Title & Policy Number Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
                 Policy Document Title *
               </label>
               <input
@@ -229,28 +226,28 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
                 placeholder="e.g. Clinical Practice Guideline on OB/GYN Care"
                 id="input-upload-title"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs sm:text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
-                Policy ID / Number
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
+                Policy Number
               </label>
               <input
                 type="text"
                 value={policyNumber}
                 onChange={(e) => setPolicyNumber(e.target.value)}
                 id="input-upload-number"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
           </div>
 
           {/* Department & Category */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div>
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
                 Department
               </label>
               <input
@@ -258,19 +255,19 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 id="input-upload-dept"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-border-subtle text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
                 Policy Category
               </label>
               <select
                 value={category}
                 onChange={(e: any) => setCategory(e.target.value)}
                 id="select-upload-category"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-border-subtle text-xs text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               >
                 <option value="ICD10_COVERAGE">ICD-10 Coverage Policy</option>
                 <option value="CPT_SURGICAL">CPT Surgical Guideline</option>
@@ -280,10 +277,10 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
             </div>
           </div>
 
-          {/* CPT and ICD-10 codes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Codes */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div>
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
                 CPT Codes (Comma Separated)
               </label>
               <input
@@ -292,12 +289,12 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
                 onChange={(e) => setCptCodesString(e.target.value)}
                 placeholder="CPT 59400, CPT 59510"
                 id="input-upload-cpt"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-text-muted mb-1">
+              <label className="block text-[11px] sm:text-xs font-mono font-semibold text-text-muted mb-1">
                 ICD-10 Codes (Comma Separated)
               </label>
               <input
@@ -306,39 +303,39 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
                 onChange={(e) => setIcdCodesString(e.target.value)}
                 placeholder="ICD-10 O80, ICD-10 O82"
                 id="input-upload-icd"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2 rounded-xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
           </div>
 
           {/* Document Body / Text */}
           <div>
-            <label className="block text-xs font-mono font-bold uppercase tracking-wider text-text-muted mb-1">
+            <label className="block text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-text-muted mb-1">
               Document Text Content / Structured Sections *
             </label>
             <textarea
-              rows={7}
+              rows={5}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
-              placeholder="Paste or edit the full medical policy text here. Paragraphs separated by blank lines will be automatically partitioned into structured clinical reader sections."
+              placeholder="Paste policy text here. Paragraphs separated by blank lines will be automatically partitioned into structured clinical reader sections."
               id="textarea-upload-raw"
               required
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2 rounded-2xl bg-surface-elevated border border-border-subtle text-xs font-mono text-text-primary leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t border-border-subtle flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-[11px] font-mono text-emerald-600">
-              <ShieldCheck className="w-4 h-4" />
-              <span>AES-256 Envelope + Hash-Chained Audit</span>
+          <div className="pt-3 border-t border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center space-x-1.5 text-[10px] sm:text-[11px] font-mono text-emerald-600 self-start sm:self-auto">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span>AES-256 Envelope + SHA-256 Hash Chain</span>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-xl border border-border-subtle text-xs font-semibold text-text-muted hover:text-text-primary bg-surface-elevated"
+                className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-border-subtle text-xs font-semibold text-text-muted hover:text-text-primary bg-surface-elevated text-center"
               >
                 Cancel
               </button>
@@ -346,17 +343,17 @@ A formal Time-Out must be conducted immediately prior to starting the procedure.
                 type="submit"
                 disabled={isUploading}
                 id="btn-submit-upload-policy"
-                className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold flex items-center space-x-2 shadow-sm transition-all"
+                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm transition-all"
               >
                 {isUploading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Processing & Sealing...</span>
+                    <span>Sealing...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Upload & Publish Policy</span>
+                    <span>Publish Policy</span>
                   </>
                 )}
               </button>
